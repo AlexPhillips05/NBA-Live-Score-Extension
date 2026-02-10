@@ -1,33 +1,38 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from nba_api.stats.endpoints import scoreboardv2
-from datetime import datetime
-import json
 
-def test_fetch():
-    try:
-        # Get today's date in YYYY-MM-DD format
-        target_date = "2026-02-10"
+app = FastAPI()
 
-        # Fetch today's scoreboard, '00' is the league ID for the NBA
-        # Due to USA vs AUS timezones the day_offset will need to change sometimes?
-        board = scoreboardv2.ScoreboardV2(
-            league_id='00', 
-            game_date=target_date,
-            day_offset=-1  # 0 is today, -1 is yesterday, 1 is tomorrow
-        )
-        
-        # Convert the 'GameHeader' data into a dictionary
-        games = board.game_header.get_dict()
-        
-        if not games['data']:
-            print("No games found for today.")
-        else:
-            print(f"Found {len(games['data'])} games")
-            for game in games['data']:
-                # Index 4 is usually the Game ID, Index 5 is Gamecode (e.g., 20260210/GSWLAL)
-                print(f"Game ID: {game[2]} | Matchup: {game[5]}")
+# CRUCIAL: Allows Chrome Extension to talk to this server
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # In production, you'd specify your extension ID
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    except Exception as e:
-        print(f"An error occurred: {e}")
+@app.get("/today-scores")
+def get_scores():
+    # Get today's date in YYYY-MM-DD format
+    target_date = "2026-02-10"
 
-if __name__ == "__main__":
-    test_fetch()
+    # Fetch today's scoreboard, '00' is the league ID for the NBA
+    # Due to USA vs AUS timezones the day_offset will need to change sometimes?
+    board = scoreboardv2.ScoreboardV2(
+        league_id='00', 
+        game_date=target_date,
+        day_offset=-1  # 0 is today, -1 is yesterday, 1 is tomorrow
+    )
+    games = board.game_header.get_dict()
+    
+    # Clean the data here so the Javascript only gets the essentials
+    cleaned_games = []
+    for game in games['data']:
+        cleaned_games.append({
+            "game_id": game[2],
+            "matchup": game[5],
+            "status": game[4]
+        })
+    
+    return {"games": cleaned_games}
