@@ -16,7 +16,7 @@ function App() {
         // 1. Create a function to fetch the data
         const fetchScores = async () => {
             try {
-                const CLOUD_URL = 'https://australia-southeast1-nba-live-score-extension-alex.cloudfunctions.net/nba-scores-bridge';
+                const CLOUD_URL = 'https://nba-live-score-extension.onrender.com/today-scores';
                 const response = await fetch(CLOUD_URL);
 
                 // Check if the server actually responded with "OK"
