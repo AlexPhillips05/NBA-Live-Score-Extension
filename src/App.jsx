@@ -75,17 +75,37 @@ const getLogoUrl = (teamName) => {
 
 function App() {
     //State variables
+    // Start tracking date inside React state. Defaulting to the final day of the regular season for current testing purposes, since that day had all 30 teams playing. This will need to be changed for production to track the actual current date.
+    const [currentDate, setCurrentDate] = useState(new Date('2026-04-12'));
     const [games, setGames] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        // 1. Create a function to fetch the data
-        const fetchScores = async () => {
-            try {
-                const CLOUD_URL = 'https://nba-live-score-extension.onrender.com/today-scores';
-                const response = await fetch(CLOUD_URL);
+    // Formats JS Date object to YYYY-MM-DD for the API request parameter
+    const formatDateQuery = (date) => {
+        return date.toISOString().split('T')[0];
+    };
 
+    // Formats JS Date object to a clean reader display (e.g., "Apr 12, 2026")
+    const formatDateDisplay = (date) => {
+        return date.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            timeZone: 'UTC' // Forces display stability regardless of local machine settings
+        });
+    };
+
+    useEffect(() => {
+        //Function to fetch the data
+        const fetchScores = async () => {
+            setLoading(true);
+            try {
+                // Pass the current selected date directly to your backend as a URL parameter string
+                const targetDateStr = formatDateQuery(currentDate);
+                const CLOUD_URL = `https://nba-live-score-extension.onrender.com/today-scores?date=${targetDateStr}`;
+
+                const response = await fetch(CLOUD_URL);
                 // Check if the server actually responded with "OK"
                 if (!response.ok) {
                     throw new Error('Server not connected');
@@ -94,7 +114,8 @@ function App() {
                 const data = await response.json();
                 setGames(data.games); // This matches the {"games": [...]} structure from FastAPI
                 setLoading(false);
-            } catch (error) {
+            } 
+            catch (error) {
                 // If the fetch fails, save the error message
                 console.error("Fetch error:", error);
                 setError('Server not connected');
@@ -102,25 +123,83 @@ function App() {
             }
         };
         fetchScores();
-    }, []); // The empty array means this runs once when the popup opens
+    }, [currentDate]); // Trigger re-run whenever the state of currentDate alters
+
+    // Click handler adjustments
+    const handlePrevDay = () => {
+        const prevDay = new Date(currentDate);
+        prevDay.setUTCDate(prevDay.getUTCDate() - 1);
+        setCurrentDate(prevDay);
+    };
+
+    const handleNextDay = () => {
+        const nextDay = new Date(currentDate);
+        nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+        setCurrentDate(nextDay);
+    };
 
     // Conditional rendering for the UI
-    if (loading) return <div style={{ width: '320px', padding: '15px', textAlign: 'center' }}>Loading...</div>;
-    if (error) return <div style={{ width: '320px', padding: '15px', color: 'red', textAlign: 'center' }}>{error}</div>;
+    //if (loading) return <div style={{ width: '320px', padding: '15px', textAlign: 'center' }}>Loading...</div>;
+    //if (error) return <div style={{ width: '320px', padding: '15px', color: 'red', textAlign: 'center' }}>{error}</div>;
 
     return (
         <div style={{
             width: '420px',
             padding: '15px',
-            backgroundColor: '#121212', // dark popup background
+            backgroundColor: '#121212',
             color: 'white',
         }}>
 
-            <h2 style={{ fontSize: '18px', borderBottom: '2px solid #eee', paddingBottom: '8px', marginBottom: '12px', textAlign: 'center' }}>
-                NBA Live Scores
-            </h2>
+            {/* DATE NAVIGATION ROW HEADER */}
+            <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                borderBottom: '2px solid #2c2c2c',
+                paddingBottom: '10px',
+                marginBottom: '16px'
+            }}>
+                <button 
+                    onClick={handlePrevDay} 
+                    style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#ff5252',
+                        fontSize: '20px',
+                        cursor: 'pointer',
+                        padding: '0 10px',
+                        fontWeight: 'bold'
+                    }}
+                >
+                    &larr;
+                </button>
+
+                <h2 style={{ fontSize: '18px', margin: 0, fontWeight: 'bold', letterSpacing: '0.5px' }}>
+                    {formatDateDisplay(currentDate)}
+                </h2>
+
+                <button 
+                    onClick={handleNextDay} 
+                    style={{
+                        background: 'none',
+                        border: 'none',
+                        color: '#ff5252',
+                        fontSize: '20px',
+                        cursor: 'pointer',
+                        padding: '0 10px',
+                        fontWeight: 'bold'
+                    }}
+                >
+                    &rarr;
+                </button>
+            </div>
             
-            {games.length > 0 ? (
+            {/* INLINE RENDERING CONTAINER STATES */}
+            {loading ? (
+                <div style={{ padding: '30px', textAlign: 'center', opacity: 0.5 }}>Loading games...</div>
+            ) : error ? (
+                <div style={{ padding: '30px', color: '#ff5252', textAlign: 'center' }}>{error}</div>
+            ) : games.length > 0 ? (
                 games.map((game) => (
                     <div 
                         key={game.game_id}
@@ -135,87 +214,32 @@ function App() {
                         <div style={{
                             display: 'flex',
                             justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginBottom: '10px'
+                            alignItems: 'center'
                         }}>
-
                             {/* HOME TEAM COLUMN */}
-                            <div style={{ 
-                                display: 'flex', 
-                                flexDirection: 'column', 
-                                alignItems: 'center', 
-                                width: '100px',
-                                textAlign: 'center'
-                            }}>
-                                <img
-                                    src={getLogoUrl(game.home_team.name)}
-                                    alt={game.home_team.name}
-                                    style={{ width: '60px', height: '60px', objectFit: 'contain' }}
-                                />
-                                <div style={{ fontWeight: 'bold', marginTop: '6px', fontSize: '14px' }}>
-                                    {game.home_team.full_name.split(' ').pop()}
-                                </div>
-                                <div style={{ fontSize: '11px', opacity: 0.6, marginTop: '2px' }}>
-                                    {game.home_team.record}
-                                </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100px', textAlign: 'center' }}>
+                                <img src={getLogoUrl(game.home_team.name)} alt={game.home_team.name} style={{ width: '60px', height: '60px', objectFit: 'contain' }} />
+                                <div style={{ fontWeight: 'bold', marginTop: '6px', fontSize: '14px' }}>{game.home_team.name}</div>
+                                <div style={{ fontSize: '11px', opacity: 0.6, marginTop: '2px' }}>{game.home_team.record}</div>
                             </div>
 
                             {/* MIDDLE COLUMN (STATUS + SCORE) */}
-                            <div style={{ 
-                                flex: 1, 
-                                display: 'flex', 
-                                flexDirection: 'column', 
-                                alignItems: 'center',
-                                justifyContent: 'center'
-                            }}>
-                                {/* GAME STATUS */}
-                                <div style={{
-                                    fontSize: '12px',
-                                    fontWeight: 'bold',
-                                    color: '#ff5252',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '1px',
-                                    marginBottom: '4px'
-                                }}>
-                                    {game.status}
-                                </div>
-                                
-                                {/* LIVE SCORE */}
-                                <div style={{
-                                    fontSize: '28px',
-                                    fontWeight: 'bold',
-                                    letterSpacing: '1px'
-                                }}>
-                                    {game.home_team.score} - {game.away_team.score}
-                                </div>
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                                <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#ff5252', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>{game.status}</div>
+                                <div style={{ fontSize: '28px', fontWeight: 'bold', letterSpacing: '1px' }}>{game.home_team.score} - {game.away_team.score}</div>
                             </div>
 
                             {/* AWAY TEAM COLUMN */}
-                            <div style={{ 
-                                display: 'flex', 
-                                flexDirection: 'column', 
-                                alignItems: 'center', 
-                                width: '100px',
-                                textAlign: 'center'
-                            }}>
-                                <img
-                                    src={getLogoUrl(game.away_team.name)}
-                                    alt={game.away_team.name}
-                                    style={{ width: '60px', height: '60px', objectFit: 'contain' }}
-                                />
-                                <div style={{ fontWeight: 'bold', marginTop: '6px', fontSize: '14px' }}>
-                                    {game.away_team.full_name.split(' ').pop()}
-                                </div>
-                                <div style={{ fontSize: '11px', opacity: 0.6, marginTop: '2px' }}>
-                                    {game.away_team.record}
-                                </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100px', textAlign: 'center' }}>
+                                <img src={getLogoUrl(game.away_team.name)} alt={game.away_team.name} style={{ width: '60px', height: '60px', objectFit: 'contain' }} />
+                                <div style={{ fontWeight: 'bold', marginTop: '6px', fontSize: '14px' }}>{game.away_team.name}</div>
+                                <div style={{ fontSize: '11px', opacity: 0.6, marginTop: '2px' }}>{game.away_team.record}</div>
                             </div>
-
                         </div>
                     </div>
                 ))
             ) : (
-                <p style={{ textAlign: 'center', color: '#666' }}>No games scheduled for today.</p>
+                <p style={{ textAlign: 'center', color: '#666', padding: '20px 0' }}>No games scheduled for this date.</p>
             )}
         </div>
     )

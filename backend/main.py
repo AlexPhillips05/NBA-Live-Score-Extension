@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from nba_api.stats.endpoints import scoreboardv2
 from datetime import datetime
 import pytz
+from typing import Optional
 
 app = FastAPI()
 
@@ -15,17 +16,17 @@ app.add_middleware(
 )
 
 @app.get("/today-scores")
-def get_scores():
+def get_scores(date: Optional[str] = Query(None)): # Capture date parameter from the incoming extension request
     try:
-        # Get the current time in US Eastern Time (NBA's timezone)
-        us_tz = pytz.timezone('US/Eastern')
-        today = datetime.now(us_tz).strftime('%Y-%m-%d')
+        # If no explicit date parameter was sent, calculate the true current NBA timezone date string
+        if not date:
+            us_tz = pytz.timezone('US/Eastern')
+            date = datetime.now(us_tz).strftime('%Y-%m-%d')
 
-        # Fetch today's scoreboard
-        # Due to USA vs AUS timezones the day_offset will need to change sometimes?
+        # Request data for the precise date string calculated or requested
         board = scoreboardv2.ScoreboardV2(
             league_id='00', 
-            game_date='2026-04-12', # hard coded date where all 30 teams played a game (for testing purposes)
+            game_date=date,
             day_offset=0 # 0 is today, -1 is yesterday, +1 is tomorrow
         )
 
