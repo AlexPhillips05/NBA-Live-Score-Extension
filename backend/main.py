@@ -26,7 +26,7 @@ def get_scores():
         board = scoreboardv2.ScoreboardV2(
             league_id='00', 
             game_date=today,
-            day_offset=0
+            day_offset=-45 # 0 is today, -1 is yesterday, +1 is tomorrow
         )
 
         # Extract the tables we need
