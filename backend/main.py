@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from nba_api.stats.endpoints import scoreboardv2
 from datetime import datetime
