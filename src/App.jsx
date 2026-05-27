@@ -125,89 +125,95 @@ function App() {
                     <div 
                         key={game.game_id}
                         style={{
-                        marginBottom: '14px',
-                        padding: '10px 18px',
-                        borderRadius: '12px',
-                        backgroundColor: '#1c1c1c'
+                            marginBottom: '14px',
+                            padding: '14px 18px',
+                            borderRadius: '12px',
+                            backgroundColor: '#1c1c1c'
                         }}
                     >
-
-                        {/* LOGOS ROW */}
+                        {/* MAIN DISPLAY ROW */}
                         <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        marginBottom: '0px'
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginBottom: '10px'
                         }}>
 
-                        <img
-                            src={getLogoUrl(game.home_team.name)}
-                            alt={game.home_team.name}
-                            style={{ width: '60px', height: '60px' }}
-                        />
+                            {/* HOME TEAM COLUMN */}
+                            <div style={{ 
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                alignItems: 'center', 
+                                width: '100px',
+                                textAlign: 'center'
+                            }}>
+                                <img
+                                    src={getLogoUrl(game.home_team.name)}
+                                    alt={game.home_team.name}
+                                    style={{ width: '60px', height: '60px', objectFit: 'contain' }}
+                                />
+                                <div style={{ fontWeight: 'bold', marginTop: '6px', fontSize: '14px' }}>
+                                    {game.home_team.full_name.split(' ').pop()}
+                                </div>
+                                <div style={{ fontSize: '11px', opacity: 0.6, marginTop: '2px' }}>
+                                    {game.home_team.record}
+                                </div>
+                            </div>
 
-                        <img
-                            src={getLogoUrl(game.away_team.name)}
-                            alt={game.away_team.name}
-                            style={{ width: '60px', height: '60px' }}
-                        />
+                            {/* MIDDLE COLUMN (STATUS + SCORE) */}
+                            <div style={{ 
+                                flex: 1, 
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}>
+                                {/* GAME STATUS */}
+                                <div style={{
+                                    fontSize: '12px',
+                                    fontWeight: 'bold',
+                                    color: '#ff5252',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '1px',
+                                    marginBottom: '4px'
+                                }}>
+                                    {game.status}
+                                </div>
+                                
+                                {/* LIVE SCORE */}
+                                <div style={{
+                                    fontSize: '28px',
+                                    fontWeight: 'bold',
+                                    letterSpacing: '1px'
+                                }}>
+                                    {game.home_team.score} - {game.away_team.score}
+                                </div>
+                            </div>
+
+                            {/* AWAY TEAM COLUMN */}
+                            <div style={{ 
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                alignItems: 'center', 
+                                width: '100px',
+                                textAlign: 'center'
+                            }}>
+                                <img
+                                    src={getLogoUrl(game.away_team.name)}
+                                    alt={game.away_team.name}
+                                    style={{ width: '60px', height: '60px', objectFit: 'contain' }}
+                                />
+                                <div style={{ fontWeight: 'bold', marginTop: '6px', fontSize: '14px' }}>
+                                    {game.away_team.full_name.split(' ').pop()}
+                                </div>
+                                <div style={{ fontSize: '11px', opacity: 0.6, marginTop: '2px' }}>
+                                    {game.away_team.record}
+                                </div>
+                            </div>
+
                         </div>
-
-                        {/* STATUS */}
-                        <div style={{
-                        textAlign: 'center',
-                        fontSize: '13px',
-                        fontWeight: 'bold',
-                        color: '#ff5252',
-                        marginTop: '-25px', // Adjust this value to move the status closer to the logos
-                        marginBottom: '8px'
-                        }}>
-                        {game.status}
-                        </div>
-
-                        {/* NAME + SCORE ROW */}
-                        <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        marginBottom: '4px'
-                        }}>
-
-                        {/* Home Name */}
-                        <div style={{ flex: 1, textAlign: 'left', fontWeight: 'bold' }}>
-                            {game.home_team.full_name.split(' ').pop()} {/* This extracts the Team Name (e.g., "Celtics") */}
-                        </div>
-
-                        {/* Center Score */}
-                        <div style={{
-                            flex: 1,
-                            textAlign: 'center',
-                            fontSize: '26px',
-                            fontWeight: 'bold'
-                        }}>
-                            {game.home_team.score} - {game.away_team.score}
-                        </div>
-
-                        {/* Away Name */}
-                        <div style={{ flex: 1, textAlign: 'right', fontWeight: 'bold' }}>
-                            {game.away_team.full_name.split(' ').pop()} {/* This extracts the Team Name */}
-                        </div>
-
-                        </div>
-
-                        {/* RECORD ROW */}
-                        <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        fontSize: '12px',
-                        opacity: 0.6
-                        }}>
-                        <div>{game.home_team.record}</div>
-                        <div>{game.away_team.record}</div>
-                        </div>
-
                     </div>
-                    ))
+                ))
             ) : (
                 <p style={{ textAlign: 'center', color: '#666' }}>No games scheduled for today.</p>
             )}
