@@ -34,7 +34,7 @@ import utah from './assets/UtahJazz.svg';
 import washington from './assets/WashingtonWizards.svg';
 import nbaFallback from './assets/NBALogo.svg';
 
-// Map the API's city name to the correct imported file
+// Map the API's Team Name (last word of full_name) to the correct imported file
 const logoMap = {
     "Atlanta": atlanta,
     "Boston": boston,
@@ -48,8 +48,8 @@ const logoMap = {
     "Golden State": golden_state,
     "Houston": houston,
     "Indiana": indiana,
-    "LA": clippers, // API generally uses LA for Clippers
-    "Los Angeles": lakers, // API generally uses Los Angeles for Lakers
+    "LA": clippers,
+    "Los Angeles": lakers,
     "Memphis": memphis,
     "Miami": miami,
     "Milwaukee": milwaukee,
@@ -69,6 +69,7 @@ const logoMap = {
 };
 
 const getLogoUrl = (teamName) => {
+    console.log("Looking for logo for:", teamName); // Debugging line to check team names
     return logoMap[teamName] || nbaFallback;
 }
 
@@ -125,7 +126,7 @@ function App() {
                         key={game.game_id}
                         style={{
                         marginBottom: '14px',
-                        padding: '14px 18px',
+                        padding: '10px 18px',
                         borderRadius: '12px',
                         backgroundColor: '#1c1c1c'
                         }}
@@ -136,19 +137,19 @@ function App() {
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        marginBottom: '6px'
+                        marginBottom: '0px'
                         }}>
 
                         <img
                             src={getLogoUrl(game.home_team.name)}
                             alt={game.home_team.name}
-                            style={{ width: '38px', height: '38px' }}
+                            style={{ width: '60px', height: '60px' }}
                         />
 
                         <img
                             src={getLogoUrl(game.away_team.name)}
                             alt={game.away_team.name}
-                            style={{ width: '38px', height: '38px' }}
+                            style={{ width: '60px', height: '60px' }}
                         />
                         </div>
 
@@ -158,6 +159,7 @@ function App() {
                         fontSize: '13px',
                         fontWeight: 'bold',
                         color: '#ff5252',
+                        marginTop: '-25px', // Adjust this value to move the status closer to the logos
                         marginBottom: '8px'
                         }}>
                         {game.status}
@@ -173,7 +175,7 @@ function App() {
 
                         {/* Home Name */}
                         <div style={{ flex: 1, textAlign: 'left', fontWeight: 'bold' }}>
-                            {game.home_team.name}
+                            {game.home_team.full_name.split(' ').pop()} {/* This extracts the Team Name (e.g., "Celtics") */}
                         </div>
 
                         {/* Center Score */}
@@ -188,7 +190,7 @@ function App() {
 
                         {/* Away Name */}
                         <div style={{ flex: 1, textAlign: 'right', fontWeight: 'bold' }}>
-                            {game.away_team.name}
+                            {game.away_team.full_name.split(' ').pop()} {/* This extracts the Team Name */}
                         </div>
 
                         </div>
