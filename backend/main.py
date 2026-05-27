@@ -25,8 +25,8 @@ def get_scores():
         # Due to USA vs AUS timezones the day_offset will need to change sometimes?
         board = scoreboardv2.ScoreboardV2(
             league_id='00', 
-            game_date=today,
-            day_offset=-45 # 0 is today, -1 is yesterday, +1 is tomorrow
+            game_date='2026-04-12', # hard coded date where all 30 teams played a game (for testing purposes)
+            day_offset=0 # 0 is today, -1 is yesterday, +1 is tomorrow
         )
 
         # Extract the tables we need
