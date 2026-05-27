@@ -1,9 +1,75 @@
 import './App.css'
 import { useState, useEffect } from 'react'
 
-// Helper to resolve SVG paths dynamically in Vite
+// Explicitly import all SVGs so Vite bundles them into the extension
+import atlanta from './assets/AtlantaHawks.svg';
+import boston from './assets/BostonCeltics.svg';
+import brooklyn from './assets/BrooklynNets.svg';
+import charlotte from './assets/CharlotteHornets.svg';
+import chicago from './assets/ChicagoBulls.svg';
+import cleveland from './assets/ClevelandCavaliers.svg';
+import dallas from './assets/DallasMavericks.svg';
+import denver from './assets/DenverNuggets.svg';
+import detroit from './assets/DetroitPistons.svg';
+import golden_state from './assets/GoldenStateWarriors.svg';
+import houston from './assets/HoustonRockets.svg';
+import indiana from './assets/IndianaPacers.svg';
+import clippers from './assets/LosAngelesClippers.svg';
+import lakers from './assets/LosAngelesLakers.svg';   
+import memphis from './assets/MemphisGrizzlies.svg';
+import miami from './assets/MiamiHeat.svg';
+import milwaukee from './assets/MilwaukeeBucks.svg';
+import minnesota from './assets/MinnesotaTimberwolves.svg';
+import new_orleans from './assets/NewOrleansPelicans.svg';
+import new_york from './assets/NewYorkKnicks.svg';
+import okc from './assets/OklahomaCityThunder.svg';
+import orlando from './assets/OrlandoMagic.svg';
+import philadelphia from './assets/Philadelphia76ers.svg';
+import phoenix from './assets/PhoenixSuns.svg';
+import portland from './assets/PortlandTrailBlazers.svg';
+import sacramento from './assets/SacramentoKings.svg';
+import san_antonio from './assets/SanAntonioSpurs.svg';
+import toronto from './assets/TorontoRaptors.svg';
+import utah from './assets/UtahJazz.svg';
+import washington from './assets/WashingtonWizards.svg';
+import nbaFallback from './assets/NBALogo.svg';
+
+// Map the API's city name to the correct imported file
+const logoMap = {
+    "Atlanta": atlanta,
+    "Boston": boston,
+    "Brooklyn": brooklyn,
+    "Charlotte": charlotte,
+    "Chicago": chicago,
+    "Cleveland": cleveland,
+    "Dallas": dallas,
+    "Denver": denver,
+    "Detroit": detroit,
+    "Golden State": golden_state,
+    "Houston": houston,
+    "Indiana": indiana,
+    "LA": clippers, // API generally uses LA for Clippers
+    "Los Angeles": lakers, // API generally uses Los Angeles for Lakers
+    "Memphis": memphis,
+    "Miami": miami,
+    "Milwaukee": milwaukee,
+    "Minnesota": minnesota,
+    "New Orleans": new_orleans,
+    "New York": new_york,
+    "Oklahoma City": okc,
+    "Orlando": orlando,
+    "Philadelphia": philadelphia,
+    "Phoenix": phoenix,
+    "Portland": portland,
+    "Sacramento": sacramento,
+    "San Antonio": san_antonio,
+    "Toronto": toronto,
+    "Utah": utah,
+    "Washington": washington
+};
+
 const getLogoUrl = (teamName) => {
-    return new URL(`./assets/${teamName}.svg`, import.meta.url).href
+    return logoMap[teamName] || nbaFallback;
 }
 
 function App() {
